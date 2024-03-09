@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
-import { ISexType } from "./profile.interface";
+import { IGenderType } from "./profile.interface";
+import { IHobbies } from "./hobbies.interface";
 
 export interface IPreferences{
-    gender: ISexType,
+    gender: IGenderType,
     age: IAgeRange,
     distance: number,
+    hobbies: IHobbies,
     otherUser: mongoose.Types.ObjectId,
     user: mongoose.Types.ObjectId,
 }

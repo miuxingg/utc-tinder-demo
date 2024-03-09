@@ -1,6 +1,7 @@
+import { IHobbies } from './../interfaces/hobbies.interface';
 import mongoose, { Schema } from "mongoose"
 import { IAgeRange, IPreferences } from "../interfaces/preferences.interface"
-import { ISexType } from "../interfaces/profile.interface"
+import { IGenderType } from "../interfaces/profile.interface"
 
 const ageSchema = new Schema<IAgeRange>({
     minAge: {
@@ -14,13 +15,17 @@ const ageSchema = new Schema<IAgeRange>({
 const preferencesSchema = new Schema<IPreferences>({
     gender: {
         type: String,
-        enum: Object.values(ISexType)
+        enum: Object.values(IGenderType)
     },
     age: {
         type: ageSchema,
     },
     distance:{
         type: Number,
+    },
+    hobbies:{
+        type: Schema.Types.ObjectId,
+        ref: 'Hobbies'
     },
     user: {
         type: Schema.Types.ObjectId,

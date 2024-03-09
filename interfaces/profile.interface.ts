@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { Dayjs } from 'dayjs'
 
 export interface IProfile{
     user?: mongoose.Types.ObjectId,
@@ -7,8 +6,8 @@ export interface IProfile{
     title?: string,
     description?: string,
     photos?: IPhoto[],
-    birthDay?: Dayjs,
-    sex?: ISexType,
+    age?: number,
+    gender?: IGenderType,
     adress?: string,
 }
 
@@ -17,7 +16,7 @@ export interface IPhoto{
     imageProfileUrl: string[]
 }
 
-export enum ISexType {
+export enum IGenderType {
     male = "Male",
     female = "Female",
     other = "Other",

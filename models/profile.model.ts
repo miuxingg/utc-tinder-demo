@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs';
-import { IPhoto, IProfile, ISexType } from './../interfaces/profile.interface';
+import { IGenderType, IPhoto, IProfile } from './../interfaces/profile.interface';
 import mongoose, { Schema } from "mongoose"
 
 const photoSchema = new Schema<IPhoto>({
@@ -27,20 +27,23 @@ const profileSchema = new Schema<IProfile>({
     },
     description: {
         type: String,
+        trim: true,
     },
     photos: {
         type: photoSchema,
+        trim: true,
     },
-    birthDay: {
-        type: Dayjs,
+    age: {
+        type: Number,
+        trim: true,
     },
-    sex: {
+    gender: {
         type: String,
-        enum: Object.values(ISexType)
+        enum: Object.values(IGenderType)
     },
     adress: {
         type: String,
     }
 })
-const Profile = mongoose.model<IProfile>('Profile', profileSchema)
-export default  Profile
+
+
