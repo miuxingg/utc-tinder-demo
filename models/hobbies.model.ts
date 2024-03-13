@@ -46,6 +46,10 @@ const hobbiesSchema = new Schema<IHobbies>({
     type: String,
     enum: Object.values(IThings),
   },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 const Hobbies = mongoose.model<IHobbies>("Hobbies", hobbiesSchema);
 export default Hobbies;

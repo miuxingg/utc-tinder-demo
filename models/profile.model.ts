@@ -25,6 +25,10 @@ const profileSchema = new Schema<IProfile>({
     type: Schema.Types.ObjectId,
     ref: "Hobbies",
   },
+  preferences: {
+    type: Schema.Types.ObjectId,
+    ref: "Preferences",
+  },
   title: {
     type: String,
     trim: true,

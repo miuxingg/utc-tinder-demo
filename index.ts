@@ -9,7 +9,7 @@ import cors from "cors";
 import User from "./models/users.model";
 import routerUser from "./routes/user.route";
 import routerProfile from "./routes/profile.route";
-import routerhHobbies from "./routes/hobbies.route";
+import routerHobbies from "./routes/hobbies.route";
 import routerPreferences from "./routes/preferences.route";
 
 const app = express();
@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.use("/api", routerUser);
 app.use("/api", routerProfile);
-app.use("/api", routerhHobbies);
+app.use("/api", routerHobbies);
 app.use("/api", routerPreferences);
 app.all("*", (req, res, next) => {
   const err = new Error("The route can not found");

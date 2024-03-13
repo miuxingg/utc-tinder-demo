@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 export interface IHobbies {
   sport: ISport;
   music: string[];
@@ -8,6 +10,7 @@ export interface IHobbies {
   zodiac: IZodiac;
   communication: ICommunication;
   things: IThings;
+  user: mongoose.Types.ObjectId;
 }
 
 export enum ISport {

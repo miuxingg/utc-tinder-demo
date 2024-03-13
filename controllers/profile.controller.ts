@@ -24,3 +24,20 @@ export const createProfile = async (req: any, res: any, next: any) => {
     res.json(error);
   }
 };
+
+export const updateProfile = async (req: any, res: any, next: any) => {
+  try {
+    const user = req.body.userId;
+    const profile = await Profile.findOneAndUpdate(
+      { user },
+      { ...req.body },
+      { new: true, runValidator: true }
+    );
+    res.status(200).json({
+      status: "success",
+      data: profile,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};

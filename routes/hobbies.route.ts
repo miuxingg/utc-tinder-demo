@@ -1,7 +1,11 @@
 import express from "express";
-import { createHobbies } from "../controllers/hobbies.controller";
+import {
+  createHobbies,
+  updateHobbies,
+} from "../controllers/hobbies.controller";
 
-const routerhHobbies = express.Router();
-routerhHobbies.route("/createHobbies").post(createHobbies);
+const routerHobbies = express.Router();
+routerHobbies.route("/createHobbies").post(createHobbies);
+routerHobbies.route("/updateHobbies").put(updateHobbies);
 
-export default routerhHobbies;
+export default routerHobbies;
