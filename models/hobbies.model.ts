@@ -18,6 +18,7 @@ const hobbiesSchema = new Schema<IHobbies>({
   music: {
     type: [String],
     trim: true,
+    default: undefined,
   },
   pet: {
     type: String,
