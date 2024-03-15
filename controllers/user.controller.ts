@@ -23,6 +23,7 @@ export const register = async (req: any, res: any, next: any) => {
 //login
 export const login = async (req: IRequest, res: any, next: NextFunction) => {
   try {
+    
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
       const err = new Error("email is not correct");
