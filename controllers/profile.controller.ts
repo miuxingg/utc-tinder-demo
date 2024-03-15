@@ -80,15 +80,39 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
     shuffleArray(randomValHobbies);
     console.log("randomValHobbies", randomValHobbies);
 
-    const userMatchHobby = await Hobbies.find({
-      [randomValHobbies[0]]:
-        myHobbies && myHobbies.hobby
-          ? myHobbies.hobby![
-              randomValHobbies[0] as keyof typeof myHobbies.hobby
-            ]
-          : [],
-    });
-    console.log(userMatchHobby);
+    let i = 0;
+    while (i < randomValHobbies.length) {
+      const userMatchHobby = await Hobbies.aggregate([
+        {
+          $match: {
+            [randomValHobbies[0]]:
+              myHobbies && myHobbies.hobby
+                ? myHobbies.hobby![
+                    randomValHobbies[0] as keyof typeof myHobbies.hobby
+                  ]
+                : "ABC",
+          },
+        },
+        { $sample: { size: 1 } },
+      ]);
+      console.log(userMatchHobby);
+
+      userMatchHobby.length
+        ? (i += 1)
+        : res.status(200).json({
+            status: "success",
+            data: userMatchHobby[0], // Trả về sở thích được chọn ngẫu nhiên
+          });
+      // if (userMatchHobby.length === 0) {
+      //   // Nếu không tìm thấy sở thích nào thỏa mãn điều kiện
+      //   i+=1
+      // }
+
+      // res.status(200).json({
+      //   status: "success",
+      //   data: userMatchHobby[0], // Trả về sở thích được chọn ngẫu nhiên
+      // });
+    }
   } catch (error) {
     throw error;
   }
