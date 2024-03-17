@@ -10,6 +10,7 @@ export interface IProfile {
   age?: number;
   gender?: IGenderType;
   adress?: string;
+  location?: ILocation;
 }
 
 export interface IPhoto {
@@ -21,4 +22,9 @@ export enum IGenderType {
   male = "Male",
   female = "Female",
   other = "Other",
+}
+
+export interface ILocation{
+  type: string,
+  coordinates: [number]
 }

@@ -52,6 +52,12 @@ const profileSchema = new Schema<IProfile>({
   adress: {
     type: String,
   },
+  location: {
+    type: { type: String, default: "Point" },
+    coordinates: { type: [Number], default: [0, 0] }
+  }
 });
+
+profileSchema.index({ location: '2dsphere' });
 const Profile = mongoose.model<IProfile>("Profile", profileSchema);
 export default Profile;

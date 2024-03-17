@@ -17,6 +17,10 @@ export const createProfile = async (req: any, res: any, next: any) => {
       age: req.body.age,
       gender: req.body.gender,
       adress: req.body.adress,
+      location: {
+        type: "Point",
+        coordinates: [parseFloat(req.body.longitude), parseFloat(req.body.latitude)]
+      }
     });
 
     res.status(200).json({
@@ -79,30 +83,41 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
     //tạo mảng random
     shuffleArray(randomValHobbies);
     console.log("randomValHobbies", randomValHobbies);
-
+    
     let i = 0;
     while (i < randomValHobbies.length) {
+      console.log(i);
+
       const userMatchHobby = await Hobbies.aggregate([
         {
           $match: {
-            [randomValHobbies[0]]:
-              myHobbies && myHobbies.hobby
-                ? myHobbies.hobby![
-                    randomValHobbies[0] as keyof typeof myHobbies.hobby
-                  ]
-                : "ABC",
+            [randomValHobbies[i]]: 'Basketball'
+              // myHobbies && myHobbies.hobby
+              //   ? myHobbies.hobby![
+              //       randomValHobbies[0] as keyof typeof myHobbies.hobby
+              //     ]
+              //   : "ABC",
           },
         },
         { $sample: { size: 1 } },
       ]);
       console.log(userMatchHobby);
 
-      userMatchHobby.length
-        ? (i += 1)
-        : res.status(200).json({
-            status: "success",
-            data: userMatchHobby[0], // Trả về sở thích được chọn ngẫu nhiên
-          });
+      if(userMatchHobby.length){
+        return res.status(200).json({
+          status: "success",
+          data: userMatchHobby[i], // Trả về sở thích được chọn ngẫu nhiên
+        });
+         
+      }
+      i+=1      
+      // userMatchHobby.length
+      //   ? (i += 1)
+      //   : res.status(200).json({
+      //       status: "success",
+      //       data: userMatchHobby[0], // Trả về sở thích được chọn ngẫu nhiên
+      //     });
+
       // if (userMatchHobby.length === 0) {
       //   // Nếu không tìm thấy sở thích nào thỏa mãn điều kiện
       //   i+=1
@@ -117,3 +132,45 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
     throw error;
   }
 };
+
+
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180; // deg2rad below
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+      0.5 - Math.cos(dLat) / 2 +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      (1 - Math.cos(dLon)) / 2;
+
+  return R * 2 * Math.asin(Math.sqrt(a));
+}
+
+export const getNearbyProfiles = async (req, res, next) => {
+  try {
+      // Assuming your current location is provided in the request body
+      const { latitude, longitude } = req.body;
+
+      // Find all profiles
+      const allProfiles = await Profile.find({});
+
+      // Filter profiles within 5km radius
+      const nearbyProfiles = allProfiles.filter(profile => {
+          const distance = calculateDistance(
+              latitude,
+              longitude,
+              profile.latitude,
+              profile.longitude
+          );
+          return distance < 5;
+      });
+
+      res.status(200).json({
+          status: "success",
+          data: nearbyProfiles,
+      });
+  } catch (error) {
+      res.json(error);
+  }
+};  
