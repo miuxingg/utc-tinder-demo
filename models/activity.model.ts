@@ -1,23 +1,28 @@
-import { IActivity, IActivityTypes } from './../interfaces/activity.interface';
-import mongoose, { Schema } from "mongoose"
+import { IActivity, IActivityTypes } from "./../interfaces/activity.interface";
+import mongoose, { Schema } from "mongoose";
 
-const activitySchema = new Schema<IActivity>({
+const activitySchema = new Schema<IActivity>(
+  {
     senderUser: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
     senderType: {
-        type: String,
-        enum: Object.values(IActivityTypes)
+      type: String,
+      enum: Object.values(IActivityTypes),
+      default: IActivityTypes.unmatch,
     },
     receiverUser: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
     receiverType: {
-        type: String,
-        enum: Object.values(IActivityTypes)
+      type: String,
+      enum: Object.values(IActivityTypes),
+      default: IActivityTypes.unmatch,
     },
-})
-const Activity = mongoose.model<IActivity>('Activity', activitySchema)
-export default  Activity
+  },
+  { timestamps: true }
+);
+const Activity = mongoose.model<IActivity>("Activity", activitySchema);
+export default Activity;

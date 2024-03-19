@@ -42,3 +42,21 @@ export const updateHobbies = async (req: any, res: any, next: any) => {
     res.json(error);
   }
 };
+
+export const genarateHobbies = async (req: any, res: any, next: any) => {
+  try {
+    const arrData = [
+      { type: "sport", name: "Basketball" },
+      { type: "sport", name: "Football" },
+      { type: "sport", name: "Volleyball" },
+    ];
+    const user = req.body.userId;
+    const hobbies = await Hobbies.create(arrData);
+    res.status(200).json({
+      status: "success",
+      data: hobbies,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};

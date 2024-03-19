@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export interface IHobbies {
+export interface IHobbie {
   sport: ISport;
   music: string[];
   pet: IPet;
@@ -11,6 +11,11 @@ export interface IHobbies {
   communication: ICommunication;
   things: IThings;
   user: mongoose.Types.ObjectId;
+}
+
+export interface IHobbies {
+  name: string;
+  type: string;
 }
 
 export enum ISport {
