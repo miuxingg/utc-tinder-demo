@@ -2,8 +2,9 @@ import mongoose from "mongoose";
 
 export interface IProfile {
   user?: mongoose.Types.ObjectId;
-  hobby?: mongoose.Types.ObjectId;
+  hobby?: [mongoose.Types.ObjectId];
   preferences?: mongoose.Types.ObjectId;
+  activity?: [mongoose.Types.ObjectId];
   title?: string;
   description?: string;
   photos?: IPhoto[];
@@ -24,7 +25,7 @@ export enum IGenderType {
   other = "Other",
 }
 
-export interface ILocation{
-  type: string,
-  coordinates: [number]
+export interface ILocation {
+  type: string;
+  coordinates: [number];
 }

@@ -21,14 +21,22 @@ const profileSchema = new Schema<IProfile>({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-  hobby: {
-    type: Schema.Types.ObjectId,
-    ref: "Hobbies",
-  },
+  hobby: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Hobbies",
+    },
+  ],
   preferences: {
     type: Schema.Types.ObjectId,
     ref: "Preferences",
   },
+  activity: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Activity",
+    },
+  ],
   title: {
     type: String,
     trim: true,
@@ -54,10 +62,10 @@ const profileSchema = new Schema<IProfile>({
   },
   location: {
     type: { type: String, default: "Point" },
-    coordinates: { type: [Number], default: [0, 0] }
-  }
+    coordinates: { type: [Number], default: [0, 0] },
+  },
 });
 
-profileSchema.index({ location: '2dsphere' });
+profileSchema.index({ location: "2dsphere" });
 const Profile = mongoose.model<IProfile>("Profile", profileSchema);
 export default Profile;
