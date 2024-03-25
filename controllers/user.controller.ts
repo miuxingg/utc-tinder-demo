@@ -17,14 +17,13 @@ export const register = async (req: any, res: any, next: any) => {
       status: "success",
     });
   } catch (error) {
-    res.json(error);
+    next(error);
   }
 };
 
 //login
 export const login = async (req: IRequest, res: any, next: NextFunction) => {
   try {
-    
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
       const err = new Error("email is not correct");

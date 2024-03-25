@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Profile from "../models/profile.model";
-import Hobbies from "../models/hobbies.model";
 import { IActivityTypes } from "../interfaces/activity.interface";
+import Activity from "../models/activity.model";
 
 export const createProfile = async (req: any, res: any, next: any) => {
   try {
@@ -67,8 +67,40 @@ export const createActivity = async (req: any, res: any, next: any) => {
     res.json(error);
   }
 };
+
+//khi người dùng quẹt trái, phải ứng dụng sẽ cập nhật trạng thái thích hay không thích
 export const updateActivity = async (req: any, res: any, next: any) => {
   try {
+    if (req.body.isCreate === "true") {
+      const updateActivity = await Activity.findOneAndUpdate(
+        {
+          $and: [
+            { senderUser: req.body.senderUser },
+            { receiverUser: req.body.receiverUser },
+          ],
+        },
+        { receiverType: req.body.receiverType },
+        { new: true, runValidator: true }
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: updateActivity,
+      });
+    } else {
+      const newActivity = await Activity.create({
+        senderUser: req.body.senderUser,
+        senderType: req.body.senderType,
+        receiverUser: req.body.receiverUser,
+      });
+      const updateActivity = await Profile.findOneAndUpdate(
+        { user: req.body.senderUser },
+        {
+          $addToSet: { activity: newActivity._id },
+        },
+        { new: true }
+      );
+    }
   } catch (error) {
     res.json(error);
   }
@@ -148,7 +180,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
                 },
               ],
             },
-            // { "activity.senderType": IActivityTypes.like },
+            { "activity.senderType": IActivityTypes.like },
           ],
         },
       },

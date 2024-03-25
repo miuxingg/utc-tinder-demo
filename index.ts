@@ -11,6 +11,7 @@ import routerUser from "./routes/user.route";
 import routerProfile from "./routes/profile.route";
 import routerHobbies from "./routes/hobbies.route";
 import routerPreferences from "./routes/preferences.route";
+import { errorHandler } from "./middlewares/validate.middleware";
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.all("*", (req, res, next) => {
   const err = new Error("The route can not found");
   return next(err);
 });
+
+app.use(errorHandler);
+
 const port = process.env.APP_PORT;
 
 app.listen(port, () => {
