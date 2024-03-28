@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Profile from "../models/profile.model";
 import { IActivityTypes } from "../interfaces/activity.interface";
 import Activity from "../models/activity.model";
+import Preferences from "../models/preferences.model";
+import { IPreferences } from "../interfaces/preferences.interface";
 
 export const createProfile = async (req: any, res: any, next: any) => {
   try {
@@ -38,7 +40,7 @@ export const createProfile = async (req: any, res: any, next: any) => {
 
 export const updateProfile = async (req: any, res: any, next: any) => {
   try {
-    const user = req.body.userId;
+    const user = req.userId;
     const profile = await Profile.findOneAndUpdate(
       { user },
       { ...req.body },
@@ -115,6 +117,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
     ];
     //random ra 1 sở thích bất kì của bản thân
     const myProfile = await Profile.findOne({ user: req.body.user });
+    console.log("here", myProfile);
 
     const randomKeyHobby =
       myProfile && myProfile.hobby
@@ -158,9 +161,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
                     {
                       $and: [
                         {
-                          "activity.receiverUser": new mongoose.Types.ObjectId(
-                            "65f14735e47a11fa0759fb21"
-                          ),
+                          "activity.receiverUser": req.body.user,
                         },
                         {
                           "activity.receiverType": {
@@ -171,16 +172,14 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
                     },
                     {
                       "activity.receiverUser": {
-                        $ne: new mongoose.Types.ObjectId(
-                          "65f14735e47a11fa0759fb21"
-                        ),
+                        $ne: req.body.user,
                       },
                     },
                   ],
                 },
               ],
             },
-            { "activity.senderType": IActivityTypes.like },
+            // { "activity.senderType": IActivityTypes.like },
           ],
         },
       },
@@ -244,7 +243,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
       {
         $unwind: "$result",
       },
-      // { $limit: 1 },
+      { $limit: 1 },
     ]);
     res.json(profiles);
   } catch (error) {
@@ -274,6 +273,216 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
   // } catch (error) {
   //   throw error;
   // }
+};
+
+export const getRandom10Profile = async (req: any, res: any, next: any) => {
+  try {
+    // const radius = 5000; // 5km radius
+    // const coordinates: [number, number] = [
+    //   parseFloat(req.body.longitude),
+    //   parseFloat(req.body.latitude),
+    // ];
+    //random ra 1 sở thích bất kì của bản thân
+    // const myProfile = await Profile.findOne({ user: req.userId }).populate({
+    //   path: "preferences",
+    //   select: "gender distance age.minAge age.maxAge",
+    // });
+
+    //random ra 1 sở thích bất kì của bản thân
+    console.log("user", req.userId);
+
+    const myProfile = await Profile.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(req.userId),
+        },
+      },
+      {
+        $lookup: {
+          from: "preferences",
+          localField: "preferences",
+          foreignField: "_id",
+          as: "preferences",
+        },
+      },
+      {
+        $unwind: {
+          path: "$preferences",
+          preserveNullAndEmptyArrays: true, // Bảo toàn các documents của profile nếu không có preferences
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          hobby: 1,
+          location: 1,
+          "preferences.age.minAge": 1,
+          "preferences.age.maxAge": 1,
+          "preferences.distance": 1,
+          "preferences.gender": 1,
+        },
+      },
+      { $limit: 1 },
+    ]);
+
+    console.log(
+      "here",
+      myProfile[0]?.preferences ? myProfile[0]?.preferences.distance : 10000
+    );
+    const radius = myProfile[0]?.preferences
+      ? myProfile[0]?.preferences.distance
+      : 10000; // 5km radius
+    const coordinates: [number, number] = myProfile[0]?.location
+      ? [
+          parseFloat(myProfile[0]?.location.coordinates[0]),
+          parseFloat(myProfile[0]?.location.coordinates[1]),
+        ]
+      : [105.7804153, 21.0061428];
+
+    const randomKeyHobby =
+      myProfile && myProfile[0].hobby
+        ? myProfile[0].hobby[
+            Math.floor(Math.random() * myProfile[0].hobby.length)
+          ]
+        : undefined;
+    console.log(randomKeyHobby);
+
+    const profiles = await Profile.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: coordinates,
+          },
+          distanceField: "distance",
+          maxDistance: radius,
+          spherical: true,
+        },
+      },
+      {
+        $match: {
+          age: {
+            $gte: myProfile[0]?.preferences
+              ? myProfile[0]?.preferences.age.minAge
+              : 18,
+            $lte: myProfile[0]?.preferences
+              ? myProfile[0]?.preferences.age.maxAge
+              : 202,
+          },
+          gender: myProfile[0]?.preferences
+            ? myProfile[0]?.preferences.gender
+            : { $in: ["Male", "Female"] },
+        },
+      },
+      {
+        $lookup: {
+          from: "activities",
+          localField: "activity",
+          foreignField: "_id",
+          as: "activity",
+        },
+      },
+      {
+        $match: {
+          $and: [
+            {
+              $and: [
+                {
+                  $or: [
+                    {
+                      $and: [
+                        {
+                          "activity.receiverUser": req.userId,
+                        },
+                        {
+                          "activity.receiverType": {
+                            $nin: [IActivityTypes.like, IActivityTypes.unlike],
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      "activity.receiverUser": {
+                        $ne: req.userId,
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "hobbies",
+          localField: "hobby",
+          foreignField: "_id",
+          as: "hobby",
+        },
+      },
+      {
+        $lookup: {
+          from: "preferences",
+          localField: "preferences",
+          foreignField: "_id",
+          as: "preferences",
+        },
+      },
+      {
+        $project: {
+          "hobby._id": 1,
+          "hobby.name": 1,
+          user: 1,
+          // activity: 1,
+          title: 1,
+          description: 1,
+          age: 1,
+          gender: 1,
+          address: 1,
+          location: 1,
+          preferences: 1,
+        },
+      },
+      {
+        $facet: {
+          match1: [
+            {
+              $match: {
+                hobby: randomKeyHobby,
+              },
+            },
+          ],
+          match2: [
+            {
+              $match: {},
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          result: {
+            $cond: {
+              if: { $gt: [{ $size: "$match1" }, 0] },
+              then: "$match1",
+              else: "$match2",
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$result",
+      },
+      {
+        $replaceRoot: { newRoot: "$result" },
+      },
+      { $limit: 10 },
+    ]);
+    res.json(profiles);
+  } catch (error) {
+    res.json(error);
+  }
 };
 
 // export const findProfilesWithinRadius = async (
