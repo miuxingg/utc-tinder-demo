@@ -15,7 +15,7 @@ export const verifyToken = (
   let accessToken = Authorization?.replace("Bearer ", ""); //nhớ ph có cả dấu space
   //**********
 
-  console.log(accessToken);
+  console.log("actoken", accessToken);
 
   if (!accessToken || String(accessToken) === "null") {
     const err: IError = {
