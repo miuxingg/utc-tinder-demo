@@ -2,8 +2,6 @@ import mongoose from "mongoose";
 import Profile from "../models/profile.model";
 import { IActivityTypes } from "../interfaces/activity.interface";
 import Activity from "../models/activity.model";
-import Preferences from "../models/preferences.model";
-import { IPreferences } from "../interfaces/preferences.interface";
 
 export const createProfile = async (req: any, res: any, next: any) => {
   try {
@@ -144,10 +142,6 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
       { $limit: 1 },
     ]);
 
-    console.log(
-      "here",
-      myProfile[0]?.preferences ? myProfile[0]?.preferences.distance : 10000
-    );
     const radius = myProfile[0]?.preferences
       ? myProfile[0]?.preferences.distance
       : 10000; // 5km radius
@@ -164,7 +158,6 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
             Math.floor(Math.random() * myProfile[0].hobby.length)
           ]
         : undefined;
-    console.log(randomKeyHobby);
 
     const profiles = await Profile.aggregate([
       {
@@ -180,7 +173,12 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
       },
       {
         $match: {
-          _id: { $nin: req.body.arrId },
+          _id: {
+            $nin: req.body.idArray.map(
+              (id: string) => new mongoose.Types.ObjectId(id)
+            ),
+          },
+          user: { $ne: new mongoose.Types.ObjectId(req.userId) },
         },
       },
       {
@@ -254,11 +252,25 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
         },
       },
       {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $set: {
+          user: { $arrayElemAt: ["$user", 0] },
+        },
+      },
+      {
         $project: {
           "hobby._id": 1,
           "hobby.name": 1,
-          user: 1,
-          // activity: 1,
+          "user.firstName": 1,
+          "user.lastName": 1,
+          "user._id": 1,
           title: 1,
           description: 1,
           age: 1,
@@ -266,6 +278,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
           address: 1,
           location: 1,
           preferences: 1,
+          distance: 1,
         },
       },
       {
@@ -303,7 +316,18 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
       },
       { $limit: 1 },
     ]);
-    res.json(profiles);
+    console.log("profiles controller", profiles);
+
+    if (profiles.length > 0) {
+      res.status(200).json({
+        status: "success",
+        data: profiles[0],
+      });
+    } else {
+      res.status(200).json({
+        status: "nope",
+      });
+    }
   } catch (error) {
     res.json(error);
   }
@@ -323,7 +347,6 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
     // });
 
     //random ra 1 sở thích bất kì của bản thân
-    console.log("user", req.userId);
 
     const myProfile = await Profile.aggregate([
       {
@@ -359,13 +382,9 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
       { $limit: 1 },
     ]);
 
-    console.log(
-      "here",
-      myProfile[0]?.preferences ? myProfile[0]?.preferences.distance : 10000
-    );
     const radius = myProfile[0]?.preferences
-      ? myProfile[0]?.preferences.distance
-      : 10000; // 5km radius
+      ? myProfile[0]?.preferences.distance * 1000
+      : 90000 * 1000; // 5km radius
     const coordinates: [number, number] = myProfile[0]?.location
       ? [
           parseFloat(myProfile[0]?.location.coordinates[0]),
@@ -395,6 +414,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
       },
       {
         $match: {
+          user: { $ne: new mongoose.Types.ObjectId(req.userId) },
           age: {
             $gte: myProfile[0]?.preferences
               ? myProfile[0]?.preferences.age.minAge
@@ -464,11 +484,25 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
         },
       },
       {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $set: {
+          user: { $arrayElemAt: ["$user", 0] },
+        },
+      },
+      {
         $project: {
           "hobby._id": 1,
           "hobby.name": 1,
-          user: 1,
-          // activity: 1,
+          "user.firstName": 1,
+          "user.lastName": 1,
+          "user._id": 1,
           title: 1,
           description: 1,
           age: 1,
@@ -476,6 +510,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
           address: 1,
           location: 1,
           preferences: 1,
+          distance: 1,
         },
       },
       {

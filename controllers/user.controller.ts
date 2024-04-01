@@ -49,7 +49,6 @@ export const login = async (req: IRequest, res: any, next: NextFunction) => {
           refreshToken: refreshToken,
           data: user,
         };
-        console.log(response);
 
         res.status(201).json(response);
         // res.cookie("tokenTinder", accessToken).status(201).json(response);

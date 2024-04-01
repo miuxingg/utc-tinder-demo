@@ -7,15 +7,11 @@ export const verifyToken = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("run into verifyToken");
-
   const Authorization = req.header("authorization");
   /* const token = Authorization?.replace('Bearer ','') */
   //**********    TEST
   let accessToken = Authorization?.replace("Bearer ", ""); //nhớ ph có cả dấu space
   //**********
-
-  console.log("actoken", accessToken);
 
   if (!accessToken || String(accessToken) === "null") {
     const err: IError = {
