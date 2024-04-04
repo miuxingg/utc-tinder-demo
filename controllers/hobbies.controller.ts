@@ -43,6 +43,51 @@ export const updateHobbies = async (req: any, res: any, next: any) => {
   }
 };
 
+export const getHobbiesType = async (req: any, res: any, next: any) => {
+  try {
+    const uniqueTypes = await Hobbies.aggregate([
+      {
+        $group: {
+          _id: "$type",
+        },
+      },
+      {
+        $project: {
+          _id: 0, // Loại trừ trường _id khỏi kết quả
+          type: "$_id", // Thêm trường 'type' vào kết quả, sao chép giá trị từ '_id'
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: uniqueTypes,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+export const getHobbyNameFromType = async (req: any, res: any, next: any) => {
+  try {
+    const { type } = req.params;
+    const uniqueTypes = await Hobbies.aggregate([
+      {
+        $match: {
+          type: type,
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: uniqueTypes,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 export const genarateHobbies = async (req: any, res: any, next: any) => {
   try {
     const arrData = [
@@ -50,13 +95,11 @@ export const genarateHobbies = async (req: any, res: any, next: any) => {
       { type: "sport", name: "Bóng đá" },
       { type: "sport", name: "Bóng chuyền" },
       { type: "sport", name: "Tennis" },
-      { type: "sport", name: "Bóng" },
       { type: "sport", name: "Chạy bộ" },
       { type: "sport", name: "Bơi" },
       { type: "sport", name: "Cầu lông" },
       { type: "sport", name: "Bóng bầu dục" },
       { type: "sport", name: "Golf" },
-      { type: "sport", name: "Khác" },
       { type: "sport", name: "Không chơi thể thao" },
 
       { type: "pet", name: "Mèo" },
@@ -68,6 +111,7 @@ export const genarateHobbies = async (req: any, res: any, next: any) => {
       { type: "pet", name: "Cá" },
       { type: "pet", name: "Rùa" },
       { type: "pet", name: "Bò sát" },
+      { type: "pet", name: "Không nuôi động vật" },
 
       { type: "drink", name: "Bia" },
       { type: "drink", name: "Rượu" },
@@ -106,6 +150,7 @@ export const genarateHobbies = async (req: any, res: any, next: any) => {
       { type: "communication", name: "Thích gọi video" },
       { type: "communication", name: "Ít gọi video" },
       { type: "communication", name: "Thích gặp mặt trực tiếp" },
+      { type: "communication", name: "Thích gặp mặt trực tiếp" },
 
       { type: "things", name: "Hành động tinh tế" },
       { type: "things", name: "Cử chỉ âu yếm" },
@@ -117,6 +162,19 @@ export const genarateHobbies = async (req: any, res: any, next: any) => {
     res.status(200).json({
       status: "success",
       data: hobbies,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+export const deleteAllBobbies = async (req: any, res: any, next: any) => {
+  try {
+    const uniqueTypes = await Hobbies.deleteMany();
+
+    res.status(200).json({
+      status: "success",
+      data: uniqueTypes,
     });
   } catch (error) {
     res.json(error);

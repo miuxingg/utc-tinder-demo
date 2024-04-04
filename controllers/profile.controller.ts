@@ -143,8 +143,8 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
     ]);
 
     const radius = myProfile[0]?.preferences
-      ? myProfile[0]?.preferences.distance
-      : 10000; // 5km radius
+      ? myProfile[0]?.preferences.distance * 1000
+      : 90000 * 1000; // 5km radius
     const coordinates: [number, number] = myProfile[0]?.location
       ? [
           parseFloat(myProfile[0]?.location.coordinates[0]),
@@ -268,6 +268,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
         $project: {
           "hobby._id": 1,
           "hobby.name": 1,
+          "hobby.type": 1,
           "user.firstName": 1,
           "user.lastName": 1,
           "user._id": 1,
@@ -275,7 +276,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
           description: 1,
           age: 1,
           gender: 1,
-          address: 1,
+          adress: 1,
           location: 1,
           preferences: 1,
           distance: 1,
@@ -500,6 +501,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
         $project: {
           "hobby._id": 1,
           "hobby.name": 1,
+          "hobby.type": 1,
           "user.firstName": 1,
           "user.lastName": 1,
           "user._id": 1,
@@ -507,7 +509,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
           description: 1,
           age: 1,
           gender: 1,
-          address: 1,
+          adress: 1,
           location: 1,
           preferences: 1,
           distance: 1,
@@ -546,7 +548,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
       {
         $replaceRoot: { newRoot: "$result" },
       },
-      { $limit: 10 },
+      { $limit: 3 },
     ]);
     res.json(profiles);
   } catch (error) {
