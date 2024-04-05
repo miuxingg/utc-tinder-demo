@@ -71,35 +71,45 @@ export const createActivity = async (req: any, res: any, next: any) => {
 //khi người dùng quẹt trái, phải ứng dụng sẽ cập nhật trạng thái thích hay không thích
 export const updateActivity = async (req: any, res: any, next: any) => {
   try {
-    if (req.body.isCreate === "true") {
-      const updateActivity = await Activity.findOneAndUpdate(
-        {
-          $and: [
-            { senderUser: req.body.senderUser },
-            { receiverUser: req.body.receiverUser },
-          ],
-        },
-        { receiverType: req.body.receiverType },
-        { new: true, runValidator: true }
-      );
+    const updateActivity = await Activity.findOneAndUpdate(
+      {
+        $and: [
+          { senderUser: req.body.senderUser },
+          { receiverUser: req.userId }, //req.body.receiverUser
+        ],
+      },
+      { receiverType: req.body.receiverType },
+      { new: true, runValidator: true }
+    );
+    console.log("inupdate", updateActivity);
 
+    if (updateActivity) {
+      //activity.received
       res.status(200).json({
         status: "success",
         data: updateActivity,
       });
     } else {
       const newActivity = await Activity.create({
-        senderUser: req.body.senderUser,
+        senderUser: req.userId,
         senderType: req.body.senderType,
         receiverUser: req.body.receiverUser,
       });
-      const updateActivity = await Profile.findOneAndUpdate(
-        { user: req.body.senderUser },
+      const updateProfile = await Profile.updateMany(
+        {
+          user: { $in: [req.userId, req.body.receiverUser] },
+        },
         {
           $addToSet: { activity: newActivity._id },
         },
         { new: true }
+        // { $push: { activity: newActivity._id } },
       );
+      res.status(200).json({
+        status: "success",
+        data: newActivity,
+        data1: updateProfile,
+      });
     }
   } catch (error) {
     res.json(error);
@@ -107,6 +117,8 @@ export const updateActivity = async (req: any, res: any, next: any) => {
 };
 
 export const getRandomProfile = async (req: any, res: any, next: any) => {
+  console.log(req.body.idArray);
+
   try {
     const myProfile = await Profile.aggregate([
       {
@@ -224,7 +236,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
                       ],
                     },
                     {
-                      "activity.receiverUser": {
+                      "activity.senderUser": {
                         $ne: req.userId,
                       },
                     },
@@ -317,7 +329,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
       },
       { $limit: 1 },
     ]);
-    console.log("profiles controller", profiles);
+    // console.log("profiles controller", profiles);
 
     if (profiles.length > 0) {
       res.status(200).json({
@@ -447,7 +459,9 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
                     {
                       $and: [
                         {
-                          "activity.receiverUser": req.userId,
+                          "activity.receiverUser": new mongoose.Types.ObjectId(
+                            req.userId
+                          ),
                         },
                         {
                           "activity.receiverType": {
@@ -457,8 +471,8 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
                       ],
                     },
                     {
-                      "activity.receiverUser": {
-                        $ne: req.userId,
+                      "activity.senderUser": {
+                        $ne: new mongoose.Types.ObjectId(req.userId),
                       },
                     },
                   ],
