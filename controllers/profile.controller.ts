@@ -236,9 +236,18 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
                       ],
                     },
                     {
-                      "activity.senderUser": {
-                        $ne: req.userId,
-                      },
+                      $and: [
+                        {
+                          "activity.senderUser": {
+                            $ne: new mongoose.Types.ObjectId(req.userId),
+                          },
+                        },
+                        {
+                          "activity.receiverUser": {
+                            $ne: new mongoose.Types.ObjectId(req.userId),
+                          },
+                        },
+                      ],
                     },
                   ],
                 },
@@ -292,6 +301,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
           location: 1,
           preferences: 1,
           distance: 1,
+          activity: 1,
         },
       },
       {
@@ -481,8 +491,8 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
                           "activity.receiverUser": {
                             $ne: new mongoose.Types.ObjectId(req.userId),
                           },
-                        }
-                      ]
+                        },
+                      ],
                     },
                   ],
                 },
@@ -536,7 +546,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
           location: 1,
           preferences: 1,
           distance: 1,
-          activity: 1
+          activity: 1,
         },
       },
       {
@@ -572,7 +582,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
       {
         $replaceRoot: { newRoot: "$result" },
       },
-      { $limit: 10 },
+      { $limit: 3 },
     ]);
     res.json(profiles);
   } catch (error) {
