@@ -84,11 +84,14 @@ export const updateActivity = async (req: any, res: any, next: any) => {
     console.log("inupdate", updateActivity);
 
     if (updateActivity) {
-      //activity.received
-      res.status(200).json({
+      if(updateActivity.receiverType === 'Like' && updateActivity.senderType === "Like")
+        res.status(200).json({status: 'match'})
+      else{res.status(200).json({
         status: "success",
         data: updateActivity,
-      });
+      });}
+      //activity.received
+      
     } else {
       const newActivity = await Activity.create({
         senderUser: req.userId,
