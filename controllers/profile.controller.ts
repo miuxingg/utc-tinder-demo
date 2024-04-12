@@ -68,6 +68,47 @@ export const createActivity = async (req: any, res: any, next: any) => {
   }
 };
 
+export const getMyProfile = async (req: any, res: any, next: any) => {
+  try {
+    const myProfile = await Profile.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(req.userId),
+        },
+      },
+      {
+        $lookup: {
+          from: "hobbies",
+          localField: "hobby",
+          foreignField: "_id",
+          as: "hobby",
+        },
+      },
+      {
+        $project: {
+          "hobby._id": 1,
+          "hobby.name": 1,
+          "hobby.type": 1,
+          description: 1,
+          title: 1,
+          age: 1,
+          gender: 1,
+        },
+      },
+    ]);
+    if (!myProfile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+    res.status(200).json({
+      status: "success",
+      data: myProfile[0],
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred", error: error });
+  }
+};
+
 //khi người dùng quẹt trái, phải ứng dụng sẽ cập nhật trạng thái thích hay không thích
 export const updateActivity = async (req: any, res: any, next: any) => {
   try {
@@ -84,14 +125,18 @@ export const updateActivity = async (req: any, res: any, next: any) => {
     console.log("inupdate", updateActivity);
 
     if (updateActivity) {
-      if(updateActivity.receiverType === 'Like' && updateActivity.senderType === "Like")
-        res.status(200).json({status: 'match'})
-      else{res.status(200).json({
-        status: "success",
-        data: updateActivity,
-      });}
+      if (
+        updateActivity.receiverType === "Like" &&
+        updateActivity.senderType === "Like"
+      )
+        res.status(200).json({ status: "match" });
+      else {
+        res.status(200).json({
+          status: "success",
+          data: updateActivity,
+        });
+      }
       //activity.received
-      
     } else {
       const newActivity = await Activity.create({
         senderUser: req.userId,
@@ -440,7 +485,8 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
       },
       {
         $match: {
-          user: { $ne: new mongoose.Types.ObjectId(req.userId) },
+          //khi làm thật nhớ thêm dòng dưới vào. suộc đi vì chỉ dg test
+          // user: { $ne: new mongoose.Types.ObjectId(req.userId) },
           age: {
             $gte: myProfile[0]?.preferences
               ? myProfile[0]?.preferences.age.minAge

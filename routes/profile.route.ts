@@ -2,6 +2,7 @@ import express from "express";
 import {
   createActivity,
   createProfile,
+  getMyProfile,
   getRandom10Profile,
   getRandomProfile,
   updateActivity,
@@ -16,5 +17,6 @@ routerProfile.route("/getRandomProfile").post(verifyToken, getRandomProfile);
 routerProfile.route("/getRandom10Profile").get(verifyToken, getRandom10Profile);
 routerProfile.route("/createActivity").post(verifyToken, createActivity);
 routerProfile.route("/updateActivity").put(verifyToken, updateActivity);
+routerProfile.route("/getMyProfile").get(verifyToken, getMyProfile);
 
 export default routerProfile;
