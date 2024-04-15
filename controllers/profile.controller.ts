@@ -85,6 +85,20 @@ export const getMyProfile = async (req: any, res: any, next: any) => {
         },
       },
       {
+        $lookup: {
+          from: "preferences",
+          localField: "preferences",
+          foreignField: "_id",
+          as: "preferences",
+        },
+      },
+      {
+        $unwind: {
+          path: "$preferences",
+          preserveNullAndEmptyArrays: true, // Chỉ định nếu muốn giữ các document không có preferences
+        },
+      },
+      {
         $project: {
           "hobby._id": 1,
           "hobby.name": 1,
@@ -93,6 +107,10 @@ export const getMyProfile = async (req: any, res: any, next: any) => {
           title: 1,
           age: 1,
           gender: 1,
+          "preferences.age.minAge": 1,
+          "preferences.age.maxAge": 1,
+          "preferences.distance": 1,
+          "preferences.gender": 1,
         },
       },
     ]);
