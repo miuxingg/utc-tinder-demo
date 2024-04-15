@@ -86,3 +86,16 @@ export const token = async (req: any, res: any, next: any) => {
     res.status(404).send("Invalid request");
   }
 };
+
+export const getCurrentUser = async (req: any, res: any, next: any) => {
+  try {
+    const user = await User.findOne({ _id: req.userId });
+    if (!user) return res.status(400).send("This user doesn't exist");
+    res.status(200).json({
+      status: "success",
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
