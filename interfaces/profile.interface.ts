@@ -15,7 +15,7 @@ export interface IProfile {
 }
 
 export interface IPhoto {
-  avatarUrl: string;
+  avatarUrl?: string;
   imageProfileUrl: string[];
 }
 

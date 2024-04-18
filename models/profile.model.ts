@@ -7,10 +7,10 @@ import {
 import mongoose, { Schema } from "mongoose";
 
 const photoSchema = new Schema<IPhoto>({
-  avatarUrl: {
-    type: String,
-    trim: true,
-  },
+  // avatarUrl: {
+  //   type: String,
+  //   trim: true,
+  // },
   imageProfileUrl: {
     type: [String],
   },

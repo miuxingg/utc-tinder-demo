@@ -43,7 +43,10 @@ export const updateProfile = async (req: any, res: any, next: any) => {
       { user },
       { ...req.body },
       { new: true, runValidator: true }
-    );
+    ).populate({
+      path: "hobby",
+      select: "_id name type",
+    });
     res.status(200).json({
       status: "success",
       data: profile,
@@ -105,12 +108,14 @@ export const getMyProfile = async (req: any, res: any, next: any) => {
           "hobby.type": 1,
           description: 1,
           title: 1,
+          adress: 1,
           age: 1,
           gender: 1,
           "preferences.age.minAge": 1,
           "preferences.age.maxAge": 1,
           "preferences.distance": 1,
           "preferences.gender": 1,
+          "photos.imageProfileUrl": 1,
         },
       },
     ]);

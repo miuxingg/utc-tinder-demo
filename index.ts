@@ -13,6 +13,7 @@ import routerHobbies from "./routes/hobbies.route";
 import routerPreferences from "./routes/preferences.route";
 import { errorHandler } from "./middlewares/validate.middleware";
 import routerActivity from "./routes/activity.route";
+import routerCloudinaryUpload from "./routes/cloudinaryUpload.route";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api", routerProfile);
 app.use("/api", routerHobbies);
 app.use("/api", routerPreferences);
 app.use("/api", routerActivity);
+app.use("/api", routerCloudinaryUpload);
 app.all("*", (req, res, next) => {
   const err = new Error("The route can not found");
   return next(err);
