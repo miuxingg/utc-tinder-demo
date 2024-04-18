@@ -57,7 +57,7 @@ export const login = async (req: IRequest, res: any, next: NextFunction) => {
         return next(err);
       }
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 };
 
@@ -96,6 +96,6 @@ export const getCurrentUser = async (req: any, res: any, next: any) => {
       data: user,
     });
   } catch (err) {
-    next(err);
+    console.error(err);
   }
 };

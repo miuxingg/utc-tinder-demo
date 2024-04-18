@@ -22,7 +22,7 @@ export const createPreferences = async (req: any, res: any, next: any) => {
 
 export const updatePreferences = async (req: any, res: any, next: any) => {
   try {
-    const user = req.body.userId;
+    const user = req.userId;
     const preferences = await Preferences.findOneAndUpdate(
       { user },
       { ...req.body },
