@@ -16,7 +16,7 @@ export const verifyToken = (
   if (!accessToken || String(accessToken) === "null") {
     const err: IError = {
       message: "Unauthorization",
-      statusCode: 401,
+      status: 401,
     };
 
     return next(err);
@@ -34,7 +34,7 @@ export const verifyToken = (
   } catch (error) {
     const err: IError = {
       message: "Unauthorization",
-      statusCode: 401,
+      status: 401,
     };
     return next(err);
   }

@@ -62,27 +62,37 @@ export const login = async (req: IRequest, res: any, next: NextFunction) => {
 };
 
 export const token = async (req: any, res: any, next: any) => {
-  //refresh the damn token
   const postData = req.body;
-  const { userId } = jwt.verify(
-    postData.refreshToken,
-    process.env.APP_SECRET!
-  ) as JwtPayload;
-  // if refresh token exists
-  if (postData.refreshToken) {
-    const accessToken = jwt.sign({ userId: userId }, process.env.APP_SECRET!, {
-      expiresIn: "100m",
-    });
-    // const refreshToken = jwt.sign({ userId: userId }, process.env.APP_SECRET!, {
-    //   expiresIn: "7d",
-    // });
-    const response = {
-      accessToken: accessToken,
-      refreshToken: postData.refreshToken,
-    };
-    // update the token in the list
-    res.status(200).json(response);
-  } else {
+
+  try {
+    if (postData.refreshToken) {
+      try {
+        const { userId } = jwt.verify(
+          postData.refreshToken,
+          process.env.APP_SECRET!
+        ) as JwtPayload;
+
+        // Tạo accessToken mới
+        const accessToken = jwt.sign(
+          { userId: userId },
+          process.env.APP_SECRET!,
+          {
+            expiresIn: "100m",
+          }
+        );
+
+        // Trả về response mới
+        const response = {
+          accessToken: accessToken,
+          refreshToken: postData.refreshToken,
+        };
+        res.status(200).json(response);
+      } catch (err) {
+        // Nếu refreshToken hết hạn hoặc không hợp lệ
+        res.status(401).send("Refresh token expired or invalid");
+      }
+    } else res.status(404).send("Invalid request");
+  } catch (error) {
     res.status(404).send("Invalid request");
   }
 };
