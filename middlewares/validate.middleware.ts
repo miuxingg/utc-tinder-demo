@@ -7,6 +7,9 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   err.status = err.status || 500;
+  console.log("err.status", err.status);
+  console.log("err.message", err.message);
+
   //Handling: bắt lỗi khi người dùng không nhập với các trường required
   if (err.errors) {
     err.status = 400;
@@ -31,6 +34,7 @@ export const errorHandler = (
   //trả về dữ liệu cho client
   res.status(err.status!).json({
     status: "failed",
+    statusCode: err.status,
     message: err.message,
   });
 };
