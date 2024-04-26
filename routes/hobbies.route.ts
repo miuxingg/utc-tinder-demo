@@ -12,7 +12,7 @@ import { verifyToken } from "../middlewares/verifyToken";
 const routerHobbies = express.Router();
 // routerHobbies.route("/createHobbies").post(createHobbies);
 routerHobbies.route("/updateHobbies").put(verifyToken, updateHobbies);
-routerHobbies.route("/getHobbiesType").get(verifyToken, getHobbiesType);
+routerHobbies.route("/getHobbiesType").get(getHobbiesType);
 routerHobbies
   .route("/getHobbyNameFromType/:type")
   .get(verifyToken, getHobbyNameFromType);

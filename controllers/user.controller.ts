@@ -116,6 +116,8 @@ export const changePassword = async (req: any, res: any, next: any) => {
   try {
     const myUser = await User.findById(req.userId);
     const { currentPassword, newPassword } = req.body;
+    console.log({ currentPassword, newPassword });
+
     if (newPassword && myUser?.password) {
       const compare = await bcrypt.compare(currentPassword, myUser?.password);
       if (compare) {
