@@ -31,19 +31,19 @@ const fileUploader = require("../configs/cloudinary.config");
 
 export const uploadImage = async (req: any, res: any, next: any) => {
   try {
-    console.log("here");
-
     fileUploader.array("files", 10)(req, res, async (err: any) => {
+      console.log("req.files", req.files);
+      console.log("req.files.length", req.files.length);
+      if (!req.files || req.files.length === 0) {
+        next(new Error("Cần ít nhất 1 ảnh!"));
+        return;
+      }
       if (err) {
         next(new Error("Error uploading files!"));
         return;
       }
       console.log("req.files", req.files);
 
-      if (!req.files || req.files.length === 0) {
-        next(new Error("No files uploaded!"));
-        return;
-      }
       const uploadedFiles = req.files.map((file: any) => file.path);
       if (uploadedFiles) {
         const user = req.userId;

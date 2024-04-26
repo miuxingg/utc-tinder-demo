@@ -12,7 +12,7 @@ routerUser.route("/register").post(register);
 routerUser.route("/login").post(login);
 routerUser.route("/token").post(token);
 routerUser.route("/getCurrentUser").get(verifyToken, getCurrentUser);
-routerUser.route("/changePassword").get(verifyToken, changePassword);
+routerUser.route("/changePassword").post(verifyToken, changePassword);
 routerUser.route("/resetPasswordByMail").post(sendMail);
 
 export default routerUser;

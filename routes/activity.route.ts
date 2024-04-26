@@ -7,8 +7,6 @@ import {
 
 const routerActivity = express.Router();
 routerActivity.route("/createActivity").post(verifyToken, createActivity);
-routerActivity
-  .route("/deleteAllActivity")
-  .delete(verifyToken, deleteAllActivity);
+routerActivity.route("/deleteAllActivity").delete(deleteAllActivity);
 
 export default routerActivity;

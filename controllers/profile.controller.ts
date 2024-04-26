@@ -373,6 +373,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
           preferences: 1,
           distance: 1,
           activity: 1,
+          "photos.imageProfileUrl": 1,
         },
       },
       {
@@ -410,7 +411,7 @@ export const getRandomProfile = async (req: any, res: any, next: any) => {
       },
       { $limit: 1 },
     ]);
-    // console.log("profiles controller", profiles);
+    console.log("profiles controller", profiles);
 
     if (profiles.length > 0) {
       res.status(200).json({
@@ -509,7 +510,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
       {
         $match: {
           //khi làm thật nhớ thêm dòng dưới vào. suộc đi vì chỉ dg test
-          // user: { $ne: new mongoose.Types.ObjectId(req.userId) },
+          user: { $ne: new mongoose.Types.ObjectId(req.userId) },
           age: {
             $gte: myProfile[0]?.preferences
               ? myProfile[0]?.preferences.age.minAge
@@ -619,6 +620,7 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
           preferences: 1,
           distance: 1,
           activity: 1,
+          "photos.imageProfileUrl": 1,
         },
       },
       {
