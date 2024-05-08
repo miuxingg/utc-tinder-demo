@@ -13,6 +13,7 @@ const photoSchema = new Schema<IPhoto>({
   // },
   imageProfileUrl: {
     type: [String],
+    default: [],
   },
 });
 
@@ -40,25 +41,31 @@ const profileSchema = new Schema<IProfile>({
   title: {
     type: String,
     trim: true,
+    default: "",
   },
   description: {
     type: String,
     trim: true,
+    default: "",
   },
   photos: {
     type: photoSchema,
     trim: true,
+    default: { imageProfileUrl: [] },
   },
   age: {
     type: Number,
     trim: true,
+    default: 18,
   },
   gender: {
     type: String,
     enum: Object.values(IGenderType),
+    default: IGenderType.male,
   },
   adress: {
     type: String,
+    default: "",
   },
   location: {
     type: { type: String, default: "Point" },

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  checkExistProfile,
   createActivity,
   createProfile,
   getMyProfile,
@@ -12,6 +13,7 @@ import { verifyToken } from "../middlewares/verifyToken";
 
 const routerProfile = express.Router();
 routerProfile.route("/createProfile").post(verifyToken, createProfile);
+routerProfile.route("/checkExistProfile").get(verifyToken, checkExistProfile);
 routerProfile.route("/updateProfile").put(verifyToken, updateProfile);
 routerProfile.route("/getRandomProfile").post(verifyToken, getRandomProfile);
 routerProfile.route("/getRandom10Profile").get(verifyToken, getRandom10Profile);

@@ -15,9 +15,24 @@ export const register = async (req: any, res: any, next: any) => {
       email,
       password,
     });
-    res.status(200).json({
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      process.env.APP_SECRET!,
+      { expiresIn: "100m" }
+    );
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.APP_SECRET!,
+      { expiresIn: "7d" }
+    );
+    const response = {
       status: "success",
-    });
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      data: user,
+    };
+
+    res.status(201).json(response);
   } catch (error) {
     next(error);
   }
@@ -51,8 +66,7 @@ export const login = async (req: IRequest, res: any, next: NextFunction) => {
           refreshToken: refreshToken,
           data: user,
         };
-
-        res.status(201).json(response);
+        res.status(200).json(response);
         // res.cookie("tokenTinder", accessToken).status(201).json(response);
       } else {
         const err = new Error("password is not correct");
