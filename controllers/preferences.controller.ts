@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 import Preferences from "../models/preferences.model";
 
 export const createPreferences = async (req: any, res: any, next: any) => {
-  const user = new mongoose.Types.ObjectId(req.body.userId);
+  const user = new mongoose.Types.ObjectId(req.userId);
   try {
     const preferences = await Preferences.create({
-      gender: null,
-      age: null,
-      distance: null,
+      gender: "Male",
+      age: { minAge: 18, maxAge: 100 },
+      distance: 100,
       user,
     });
 
@@ -33,6 +33,6 @@ export const updatePreferences = async (req: any, res: any, next: any) => {
       data: preferences,
     });
   } catch (error) {
-    res.json(error);
+    next(error);
   }
 };

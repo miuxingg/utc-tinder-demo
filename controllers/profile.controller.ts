@@ -2,40 +2,60 @@ import mongoose from "mongoose";
 import Profile from "../models/profile.model";
 import { IActivityTypes } from "../interfaces/activity.interface";
 import Activity from "../models/activity.model";
+import Preferences from "../models/preferences.model";
 
 export const createProfile = async (req: any, res: any, next: any) => {
   try {
-    const userId = new mongoose.Types.ObjectId(req.body.userId);
+    const userId = new mongoose.Types.ObjectId(req.userId);
+    const preferrence = await Preferences.findOne({ user: req.userId });
+    console.log("req.userId", req.userId);
 
     const profile = await Profile.create({
       user: userId,
-      hobby: req.body.hobby.map(
-        (hobbyId: string) => new mongoose.Types.ObjectId(hobbyId)
-      ),
+      hobby: req.body.hobby
+        ? req.body.hobby.map(
+            (hobbyId: string) => new mongoose.Types.ObjectId(hobbyId)
+          )
+        : [],
       title: req.body.title,
       description: req.body.description,
-      photos: req.body.photos,
+      // photos: req.body.photos ? req.body.photos : {},
       age: req.body.age,
       gender: req.body.gender,
       adress: req.body.adress,
+      preferences: new mongoose.Types.ObjectId(preferrence?._id),
       location: {
         type: "Point",
         coordinates: [
-          parseFloat(req.body.longitude),
-          parseFloat(req.body.latitude),
+          parseFloat(req.body.longitude ? req.body.longitude : 0),
+          parseFloat(req.body.latitude ? req.body.latitude : 0),
         ],
       },
     });
+    console.log("profile", profile);
 
     res.status(200).json({
       status: "success",
       data: profile,
     });
   } catch (error) {
+    console.log("error", error);
+
     res.json(error);
   }
 };
 
+export const checkExistProfile = async (req: any, res: any, next: any) => {
+  try {
+    const profile = await Profile.findOne({ user: req.userId });
+    res.status(200).json({
+      status: "success",
+      data: profile,
+    });
+  } catch (error) {
+    res.json("no profile");
+  }
+};
 export const updateProfile = async (req: any, res: any, next: any) => {
   try {
     const user = req.userId;
@@ -188,8 +208,6 @@ export const updateActivity = async (req: any, res: any, next: any) => {
 };
 
 export const getRandomProfile = async (req: any, res: any, next: any) => {
-  console.log(req.body.idArray);
-
   try {
     const myProfile = await Profile.aggregate([
       {
