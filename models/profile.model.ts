@@ -38,6 +38,12 @@ const profileSchema = new Schema<IProfile>({
       ref: "Activity",
     },
   ],
+  listmatch: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Profile",
+    },
+  ],
   title: {
     type: String,
     trim: true,

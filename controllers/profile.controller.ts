@@ -8,7 +8,6 @@ export const createProfile = async (req: any, res: any, next: any) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.userId);
     const preferrence = await Preferences.findOne({ user: req.userId });
-    console.log("req.userId", req.userId);
 
     const profile = await Profile.create({
       user: userId,
@@ -24,6 +23,7 @@ export const createProfile = async (req: any, res: any, next: any) => {
       gender: req.body.gender,
       adress: req.body.adress,
       preferences: new mongoose.Types.ObjectId(preferrence?._id),
+      listmatch: [],
       location: {
         type: "Point",
         coordinates: [
@@ -90,7 +90,66 @@ export const createActivity = async (req: any, res: any, next: any) => {
     res.json(error);
   }
 };
-
+export const getListMatch = async (req: any, res: any, next: any) => {
+  try {
+    const myProfile = await Profile.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(req.userId),
+        },
+      },
+      {
+        $lookup: {
+          from: "profiles",
+          localField: "listmatch",
+          foreignField: "_id",
+          as: "listMatches",
+        },
+      },
+      {
+        $unwind: "$listMatches",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "listMatches.user",
+          foreignField: "_id",
+          as: "listMatchesUser",
+        },
+      },
+      {
+        $unwind: "$listMatchesUser",
+      },
+      {
+        $addFields: {
+          user: "$listMatches.user",
+          firstName: "$listMatchesUser.firstName",
+          lastName: "$listMatchesUser.lastName",
+          photos: "$listMatches.photos",
+        },
+      },
+      {
+        $project: {
+          user: 1,
+          firstName: 1,
+          lastName: 1,
+          "photos.imageProfileUrl": 1,
+          _id: 0,
+        },
+      },
+    ]);
+    if (!myProfile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+    res.status(200).json({
+      status: "success",
+      data: myProfile,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred", error: error });
+  }
+};
 export const getMyProfile = async (req: any, res: any, next: any) => {
   try {
     const myProfile = await Profile.aggregate([
@@ -121,6 +180,7 @@ export const getMyProfile = async (req: any, res: any, next: any) => {
           preserveNullAndEmptyArrays: true, // Chỉ định nếu muốn giữ các document không có preferences
         },
       },
+
       {
         $project: {
           "hobby._id": 1,
@@ -136,6 +196,10 @@ export const getMyProfile = async (req: any, res: any, next: any) => {
           "preferences.distance": 1,
           "preferences.gender": 1,
           "photos.imageProfileUrl": 1,
+          "listmatch.photos.imageProfileUrl": 1,
+          "listmatch.user.firstName": 1,
+          "listmatch.user.lastName": 1,
+          "listmatch.user._id": 1,
         },
       },
     ]);
