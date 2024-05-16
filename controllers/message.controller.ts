@@ -9,6 +9,7 @@ export const createMessage = async (req: any, res: any, next: any) => {
       recipient: req.body.recipient,
       content: req.body.content,
     });
+    console.log("message", message);
 
     res.status(200).json({
       status: "success",
@@ -29,11 +30,24 @@ export const getMessage = async (req: any, res: any, next: any) => {
     })
       .sort({ createdAt: 1 })
       .skip(req.body.skipCount)
-      .limit(5);
+      .limit(55);
 
     res.status(200).json({
       status: "success",
       data: messages,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+export const deleteMessage = async (req: any, res: any, next: any) => {
+  try {
+    const deleteMessage = await Message.deleteMany();
+
+    res.status(200).json({
+      status: "success",
+      data: deleteMessage,
     });
   } catch (error) {
     res.json(error);

@@ -575,7 +575,6 @@ export const getRandom10Profile = async (req: any, res: any, next: any) => {
             Math.floor(Math.random() * myProfile[0].hobby.length)
           ]
         : undefined;
-    console.log(randomKeyHobby);
 
     const profiles = await Profile.aggregate([
       {
