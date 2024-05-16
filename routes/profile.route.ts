@@ -3,6 +3,7 @@ import {
   checkExistProfile,
   createActivity,
   createProfile,
+  getListMatch,
   getMyProfile,
   getRandom10Profile,
   getRandomProfile,
@@ -20,5 +21,6 @@ routerProfile.route("/getRandom10Profile").get(verifyToken, getRandom10Profile);
 routerProfile.route("/createActivity").post(verifyToken, createActivity);
 routerProfile.route("/updateActivity").put(verifyToken, updateActivity);
 routerProfile.route("/getMyProfile").get(verifyToken, getMyProfile);
+routerProfile.route("/getListMatch").get(verifyToken, getListMatch);
 
 export default routerProfile;

@@ -5,6 +5,7 @@ export interface IProfile {
   hobby?: [mongoose.Types.ObjectId];
   preferences?: mongoose.Types.ObjectId;
   activity?: [mongoose.Types.ObjectId];
+  listmatch?: [mongoose.Types.ObjectId];
   title?: string;
   description?: string;
   photos?: IPhoto[];
