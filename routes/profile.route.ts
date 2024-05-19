@@ -8,6 +8,7 @@ import {
   getRandom10Profile,
   getRandomProfile,
   updateActivity,
+  updateLocation,
   updateProfile,
 } from "../controllers/profile.controller";
 import { verifyToken } from "../middlewares/verifyToken";
@@ -22,5 +23,6 @@ routerProfile.route("/createActivity").post(verifyToken, createActivity);
 routerProfile.route("/updateActivity").put(verifyToken, updateActivity);
 routerProfile.route("/getMyProfile").get(verifyToken, getMyProfile);
 routerProfile.route("/getListMatch").get(verifyToken, getListMatch);
+routerProfile.route("/updateLocation").put(verifyToken, updateLocation);
 
 export default routerProfile;

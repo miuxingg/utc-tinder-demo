@@ -76,6 +76,29 @@ export const updateProfile = async (req: any, res: any, next: any) => {
   }
 };
 
+export const updateLocation = async(req: any, res: any, next: any)=>{
+  try {
+    const profile = await Profile.findOneAndUpdate(
+      { user: req.userId },
+      {
+        $set: {
+          "location.coordinates": [
+            parseFloat(req.body.longitude),
+            parseFloat(req.body.latitude),
+          ],
+        },
+      },
+      { new: true, runValidator: true  } 
+    );
+      res.status(200).json({
+        status: "success",
+        data: profile,
+      });
+  } catch (error) {
+    next(error)
+  }
+  
+}
 export const createActivity = async (req: any, res: any, next: any) => {
   try {
     // const activity = await Activity.create({
