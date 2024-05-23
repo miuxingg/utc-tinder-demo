@@ -41,6 +41,24 @@ export const getMessage = async (req: any, res: any, next: any) => {
   }
 };
 
+export const getLatestMessage = async (req: any, res: any, next: any) => {
+  try {
+    const latestMessage = await Message.findOne({
+      $or: [
+          { sender: new mongoose.Types.ObjectId(req.body.userId) },
+          { recipient: new mongoose.Types.ObjectId(req.body.userId) }
+      ]
+  })
+  .sort({ createdAt: -1 });
+  res.status(200).json({
+    status: "success",
+    data: latestMessage,
+  });
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const deleteMessage = async (req: any, res: any, next: any) => {
   try {
     const deleteMessage = await Message.deleteMany();
