@@ -7,6 +7,7 @@ import {
   getMyProfile,
   getRandom10Profile,
   getRandomProfile,
+  moveToHeadListMatch,
   updateActivity,
   updateLocation,
   updateProfile,
@@ -24,5 +25,6 @@ routerProfile.route("/updateActivity").put(verifyToken, updateActivity);
 routerProfile.route("/getMyProfile").get(verifyToken, getMyProfile);
 routerProfile.route("/getListMatch").get(verifyToken, getListMatch);
 routerProfile.route("/updateLocation").put(verifyToken, updateLocation);
+routerProfile.route("/moveToHeadListMatch").put(verifyToken, moveToHeadListMatch);
 
 export default routerProfile;
