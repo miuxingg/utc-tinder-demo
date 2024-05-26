@@ -3,6 +3,7 @@ import Profile from "../models/profile.model";
 import { IActivityTypes } from "../interfaces/activity.interface";
 import Activity from "../models/activity.model";
 import Preferences from "../models/preferences.model";
+import Message from "../models/message.model";
 
 export const createProfile = async (req: any, res: any, next: any) => {
   try {
@@ -47,12 +48,17 @@ export const createProfile = async (req: any, res: any, next: any) => {
 
 export const checkExistProfile = async (req: any, res: any, next: any) => {
   try {
+    console.log('here');
+    
     const profile = await Profile.findOne({ user: req.userId });
     res.status(200).json({
       status: "success",
       data: profile,
     });
+    console.log('profile',profile);
+    
   } catch (error) {
+    console.log('no profile');
     res.json("no profile");
   }
 };
@@ -164,6 +170,53 @@ export const getListMatch = async (req: any, res: any, next: any) => {
     if (!myProfile) {
       return res.status(404).json({ message: "Profile not found" });
     }
+
+    const listUser = myProfile.map(user => user.user);
+
+  // Fetch the latest message for each user in listUser
+  const messages = await Message.aggregate([
+    {
+      $match: {
+        $or: [
+          { sender: { $in: listUser } },
+          { recipient: { $in: listUser } }
+        ]
+      }
+    },
+    {
+      $sort: { createdAt: -1 } // Sort by createdAt in descending order
+    },
+    {
+      $group: {
+        _id: {
+          $cond: [
+            { $in: ["$sender", listUser] },
+            "$sender",
+            "$recipient"
+          ]
+        },
+        mostRecentMessage: { $first: "$$ROOT" }
+      }
+    },
+    {
+      $sort: { "mostRecentMessage.createdAt": -1 } // Sort groups by the most recent message
+    }
+  ]).exec();
+
+  // Create a map to track the most recent message time for each user
+  const userMessageMap = new Map();
+  messages.forEach(msg => {
+    userMessageMap.set(msg._id.toString(), msg.mostRecentMessage.createdAt);
+  });
+
+  // Sort listUser based on the most recent message time
+  myProfile.sort((a, b) => {
+    const aTime = userMessageMap.get(a.user.toString()) || new Date(0);
+    const bTime = userMessageMap.get(b.user.toString()) || new Date(0);
+    return bTime - aTime;
+  });
+
+  // return listUser;
     res.status(200).json({
       status: "success",
       data: myProfile,
@@ -173,6 +226,28 @@ export const getListMatch = async (req: any, res: any, next: any) => {
     res.status(500).json({ message: "An error occurred", error: error });
   }
 };
+
+//chuyển userId trong listMatch có activity lên đầu
+export const moveToHeadListMatch= async (req: any, res: any, next: any) => {
+  try {
+    await Profile.updateOne(
+      { user: req.userId },
+      { $pull: { listmatch: req.body.userId } }
+    );
+  
+    // Add the userId to the beginning of the array
+    const profile = await Profile.updateOne(
+      { user: req.userId },
+      { $push: { listmatch: { $each: [req.body.userId], $position: 0 } } }
+    );
+    res.status(200).json({
+      status: "success",
+      data: profile,
+    });
+  } catch (error) {
+    next(error)
+  }
+}
 export const getMyProfile = async (req: any, res: any, next: any) => {
   try {
     const myProfile = await Profile.aggregate([
